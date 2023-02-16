@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import time
 
 class GUI:
 
@@ -14,6 +15,7 @@ class GUI:
     self.clicks = 0
     self.timer = 0
     self.score = 0
+    self.CPSOn = False
 
     #Texts
     self.title = tk.Label(self.root, text="Clicks-per-Second", font=('Comic Sans MS', 20), background="#BFACE2", foreground="#18122B", borderwidth=5)
@@ -30,16 +32,16 @@ class GUI:
     self.timerButtonFrame.columnconfigure(3, weight=1)
 
     #Timer Buttons
-    self.oneSecBtn = tk.Button(self.timerButtonFrame, text="1 Second", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=self.changeTimer)
+    self.oneSecBtn = tk.Button(self.timerButtonFrame, text="1 Second", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=lambda:self.changeTimer(1))
     self.oneSecBtn.grid(row=0, column=0, sticky=tk.W+tk.E)
 
-    self.fiveSecBtn = tk.Button(self.timerButtonFrame, text="5 Seconds", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=self.changeTimer)
+    self.fiveSecBtn = tk.Button(self.timerButtonFrame, text="5 Seconds", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=lambda:self.changeTimer(5))
     self.fiveSecBtn.grid(row=0, column=1, sticky=tk.W+tk.E)
 
-    self.tenSecBtn = tk.Button(self.timerButtonFrame, text="10 Seconds", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=self.changeTimer)
+    self.tenSecBtn = tk.Button(self.timerButtonFrame, text="10 Seconds", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=lambda:self.changeTimer(10))
     self.tenSecBtn.grid(row=0, column=2, sticky=tk.W+tk.E)
 
-    self.fifthTeenSecBtn = tk.Button(self.timerButtonFrame, text="15 Seconds", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=self.changeTimer)
+    self.fifthTeenSecBtn = tk.Button(self.timerButtonFrame, text="15 Seconds", font=('Comic Sans MS', 10), background="#645CBB", foreground="#18122B", activebackground="#A084DC",command=lambda:self.changeTimer(15))
     self.fifthTeenSecBtn.grid(row=0, column=3, sticky=tk.W+tk.E)
 
     self.timerButtonFrame.pack(fill='x', padx=10, pady=10)
@@ -52,19 +54,30 @@ class GUI:
     self.root.mainloop()
 
   def updateStats(self):
-    self.score += 1
+    if self.timer >= 0:
+      self.CPSOn = True
+      self.score += 1
+      self.statsLabel.configure(text=f"Clicks/s: {self.clicks} Score: {self.score} Timer: {self.timer}")
+      self.calculateCPS()
+    elif self.timer == 0:
+      self.CPSOn = False
+
+  #Change Timer Time
+  def changeTimer(self, time):
+    self.timer = time
     self.statsLabel.configure(text=f"Clicks/s: {self.clicks} Score: {self.score} Timer: {self.timer}")
-    print(self.score)
-    self.calculateCPS()
 
-  def changeScore(self):
-    pass
-
-  def changeTimer(self):
-    pass
+  def updateTimer(self):
+    if self.CPSOn == True:
+      self.timer -= 1
+      time.sleep(1)
+      self.root.after(1000, self.updateTimer)#Call update every second
 
   def calculateCPS(self):
     pass
+
+  def showResult(self):
+    messagebox.showinfo(title="Results",message=f"Your average Clicks Per Seconds are {self.clicks}")
 
   #Prevent accidental closing
   def on_closing(self):
